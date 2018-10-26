@@ -15,6 +15,8 @@ public class MenuScreen extends Base2DScreen {
 
     private Vector2 pos;
     private Vector2 v;
+    private Vector2 touched;
+    private Vector2 buf;
 
 
     @Override
@@ -22,8 +24,10 @@ public class MenuScreen extends Base2DScreen {
         super.show();
         batch = new SpriteBatch();
         img = new Texture("star.jpg");
-        pos = new Vector2(0,0);
-        v = new Vector2(0.5f,0.3f); //скорость и направление смещения
+        pos = new Vector2(0, 0);
+        v = new Vector2(0.5f, 0.3f); //скорость и направление смещения
+        touched = new Vector2(0, 0);
+        buf = new Vector2(0,0);
     }
 
     @Override
@@ -31,10 +35,15 @@ public class MenuScreen extends Base2DScreen {
         super.render(delta);
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); //очистка экрана
+        buf.set(touched);
+        if(buf.sub(pos).len() > v.len()){
+            pos.add(v);
+        } else {
+            pos.set(touched);
+        }
         batch.begin();
         batch.draw(img, pos.x, pos.y);
         batch.end();
-        pos.add(v);
     }
 
     @Override
@@ -46,6 +55,12 @@ public class MenuScreen extends Base2DScreen {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return super.touchDown(screenX, screenY, pointer, button);
+        //получение вектора по действию пользователя
+        touched.set(screenX, Gdx.graphics.getHeight() - screenY);
+        //получение вектора от текущей позиции
+        // к месту нажатия пользвателем и его укорачивание
+        v.set(touched.cpy().sub(pos).setLength(0.5f));
+        return false;
     }
+
 }
